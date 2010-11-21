@@ -1,0 +1,26 @@
+BRAIN10 (producer)
+20
+BU03
+0005
+0000
+LR01
+SI01 // initialize empty count
+LR02
+SI00 // initialize full count
+PE02 // synchronize
+PE02
+VE03
+PE01 // put empty count down
+VE00 // put full count up
+BU10 
+BRAIN10 (consumer)
+20
+VE02 // synchronize
+PE03
+PE03
+PE00 // put full count down
+VE01 // put empty count up
+BU03 
+DATA
+END
+

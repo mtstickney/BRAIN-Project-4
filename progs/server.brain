@@ -1,0 +1,80 @@
+BRAIN10 (stdout)
+100
+BU02
+0050    (receive location)
+
+LR01    (receive from any)
+RCXX
+
+PD50    (print received)
+BU02
+
+BRAIN10    (stdin)
+100
+BU03
+0050    (receive location)
+0060    (send location)
+
+LR01    (receive from any)
+RCXX
+GD60    (get input)
+LR10    (send back to process)
+LL50
+SR10
+LR02    (sends input)
+SDXX
+BU03
+
+BRAIN10    (process #2)
+100
+BU12
+0002    (process #)
+
+0002    (data)
+0000
+hell
+o0ho
+wsit
+goin
+g?00
+0000
+0000
+0000
+
+LR01    (sends data)
+SD00
+
+HAXX
+
+BRAIN10    (process #3)
+100
+BU05
+0060    (data storage)
+0061
+0050    (sends process # input request)
+0003    (process #)
+
+LR04    (saves process # to data)
+SR60
+SR50
+LR03    (sends to input server)
+SD01
+LR02    (receives data from input server)
+RC01
+LR01    (sends data to output server)
+SD00
+
+HAXX
+
+DATA
+this
+is00
+the0
+data
+sect
+ion0
+0000
+0000
+0000
+0000
+END

@@ -1,0 +1,144 @@
+BRAIN10
+100
+BU05
+0001
+0005
+0050
+0000
+
+LR03
+SP00
+LR02
+BU09
+
+PH00
+CE01
+BT14
+SU01
+BU09
+
+PP00
+AD04
+SR04
+PS00
+CE03
+BT21
+BU14
+
+HA00
+
+BRAIN10
+100
+BU16
+0000
+0001
+NP00
+NP00
+NP00
+NP00
+NP00
+NP00
+NP00
+NP00
+0001 (i-2)
+0002 (i-1)
+0003 (i)
+0011 (end)
+0001 increment
+LR13 load i
+CL14 check bounds
+BT21
+PD01
+HA00
+LR01 load [i-2]
+AD02 add [i-1]
+SR03 store [i]
+LR11 load i-2
+AD15 incr
+SR11 store i-2
+LH21 load i-2 instruction
+SR21 store i-2 instruction
+LR12 load i-1
+AD15 incr
+SR12 store i-1
+LH22 load i-2 instruction
+SR22 store i-2 instruction
+LR13 load i
+AD15 incr
+SR13 store i
+LH23 load i instruction
+SR23 store i instruction
+BU16 loop
+BRAIN10
+100
+BU08 (jmp START)
+NP00 (stack: param 2)
+NP00 (stack: param 1)
+NP00 (stack: ret_addr)
+0000 (initial esp)
+0003 (param 2)
+0021 (param 1)
+0017 (ret_addr)
+LR04 (mov eax, 0)
+SP00 (mov esp, eax)
+LR05 (mov eax, param 2)
+PH00 (push eax)
+LR06 (mov eax, param 1)
+PH00 (push eax)
+LR07 (mov eax, ret_addr)
+PH00 (push eax)
+BU19 (jmp ADD)
+PD01
+HA00
+PP00 (pop eax)
+LH00 (mov ah, [0]) THIS IS UNPORTABLE
+SR00 (mov [0], eax)
+AS00 (pop eax; add [esp], eax)
+PP00 (pop eax)
+BU00 (return)
+BRAIN10
+100
+GD02
+HA00
+BRAIN10
+100
+BU06     00
+0080     01 
+0090     02
+0001     03
+0059     04
+0050     05
+GD50     06
+LR01     07
+SPdd     08
+LR12     09
+LL05     10
+SR12     11
+LRxx     12
+PHdd     13
+LR05     14
+AD03     15
+SR05     16
+PSdd     17
+CE02     18
+BT21     19
+BU09     20
+LR25     21
+LL05     22
+SR25     23
+PPdd     24
+SRxx     25
+LR05     26
+AD03     27
+SR05     28
+PSdd     29
+CL01     30
+BT33     31
+BU21     32
+PD50     33
+PD60     34
+HAdd     35
+DATA
+1234 9723 8570 1273 7431 4713 4789 3719 4y28 1923
+0002 0003 0005 0007 0011 0013 0017 0019 0023 0029
+END

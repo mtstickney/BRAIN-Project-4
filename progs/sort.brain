@@ -1,0 +1,226 @@
+BRAIN10    (sends strings of numbers to be sorted)
+100
+BU06
+0090    (send location)
+0000    (numbers)
+0007
+0003
+
+LR02    (stores first number)
+SR90
+LR01    (sends first number)
+SD01
+
+LR03    (stores second number)
+SR90
+LR01    (sends second number)
+SD01
+
+LR04    (stores third number)
+SR90
+LR01    (sends third number)
+SD01
+HAXX
+
+BRAIN10    (sorter #1)
+100
+BU04
+0080    (receive location)
+0090    (send location)
+0000    (data storage)
+
+LR01    (receives first number)
+RC00
+LR80    (stores first number)
+SR03
+
+LR01    (receives second number)
+RC00
+LR80    (checks if new number is smaller)
+CL03
+BT20    (branches if new number is smaller)
+
+LR03    (sends stored number)
+SR90
+LR02
+SD02
+LR80    (saves new number (larger))
+SR03
+BU25
+
+LR80    (sends new number)
+SR90
+LR02
+SD02
+BU25
+
+LR01    (receives second number)
+RC00
+LR80    (checks if new number is smaller)
+CL03
+BT37    (branches if new number is smaller)
+
+LR03    (sends stored number)
+SR90
+LR02
+SD02
+LR80    (saves new number (larger))
+SR03
+BU42
+
+LR80    (sends new number)
+SR90
+LR02
+SD02
+BU42
+
+LR03    (sends stored number)
+SR90
+LR02
+SD02
+
+HAXX
+
+BRAIN10    (sorter #2 (same))
+100
+BU04
+0080
+0090
+0000
+
+LR01
+RC01
+LR80
+SR03
+
+LR01
+RC01
+LR80
+CL03
+BT20
+
+LR03
+SR90
+LR02
+SD03
+LR80
+SR03
+BU25
+
+LR80
+SR90
+LR02
+SD03
+BU25
+
+LR01
+RC01
+LR80
+CL03
+BT37
+
+LR03
+SR90
+LR02
+SD03
+LR80
+SR03
+BU42
+
+LR80
+SR90
+LR02
+SD03
+BU42
+
+LR03
+SR90
+LR02
+SD03
+
+HAXX
+
+BRAIN10    (sorter #3 (same))
+100
+BU04
+0080
+0090
+0000
+
+LR01
+RC02
+LR80
+SR03
+
+LR01
+RC02
+LR80
+CL03
+BT20
+
+LR03
+SR90
+LR02
+SD04
+LR80
+SR03
+BU25
+
+LR80
+SR90
+LR02
+SD04
+BU25
+
+LR01
+RC02
+LR80
+CL03
+BT37
+
+LR03
+SR90
+LR02
+SD04
+LR80
+SR03
+BU42
+
+LR80
+SR90
+LR02
+SD04
+BU42
+
+LR03
+SR90
+LR02
+SD04
+
+HAXX
+
+BRAIN10    (saves and displays sorted numbers)
+100
+BU02
+0080    (receive location)
+
+LR01    (receives first number)
+RC03
+LR80    (stores first number)
+SR70
+
+LR01    (receives second number)
+RC03
+LR80    (stores second number)
+SR71
+
+LR01    (receives third number)
+RC03
+LR80    (stores third number)
+SR72
+
+PD70    (prints numbers)
+HAXX
+
+DATA
+END

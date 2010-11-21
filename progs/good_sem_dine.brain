@@ -1,0 +1,18 @@
+BRAIN10 (Philosopher process 1)
+5
+PE00 // pick up fork 1
+PE01 // pick up fork 2
+VE00 // put the forks down again
+VE01
+BU00
+
+BRAIN10 (Philosopher process 2)
+5
+PE00 // pick up fork 1
+PE01 // pick up fork 2
+VE00 // put the forks down again
+VE01
+BU00
+DATA
+END
+
