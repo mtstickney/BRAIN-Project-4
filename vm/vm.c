@@ -49,10 +49,6 @@ void int2word(int a, char *p)
 
 static int load_register(struct proc *p, int addr)
 {
-	 if (addr < 0 || addr > 99) {
-		fprintf(stderr, "load_register: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, p->r) == -1) {
 		fprintf(stderr, "load_register: load failed\n");
 		return -1;
@@ -64,10 +60,6 @@ static int load_low(struct proc *p, int addr)
 {
 	char temp[4];
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "load_low: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "load_low: load failed\n");
 		return -1;
@@ -80,10 +72,6 @@ static int load_high(struct proc *p, int addr)
 {
 	char temp[4];
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "load_high: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "load_high: load failed\n");
 		return -1;
@@ -94,10 +82,6 @@ static int load_high(struct proc *p, int addr)
 
 static int store_register(struct proc *p, int addr)
 {
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "store_register: invalid address\n");
-		return -1;
-	}
 	if (store(p, p->r, addr) == -1) {
 		fprintf(stderr, "store_register: store failed\n");
 		return -1;
@@ -108,10 +92,6 @@ static int store_register(struct proc *p, int addr)
 static int set_sp(struct proc *p, int addr)
 {
 	addr = word2int(p->r);
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "set_sp: invalid address in register\n");
-		return -1;
-	}
 	p->stack_base = addr;
 	memcpy(p->sp, p->r, 4);
 	return 0;
@@ -132,10 +112,6 @@ static int push(struct proc *p, int addr)
 	}
 	addr++;
 	int2word(addr, p->sp);
-	if (addr > 99) {
-		fprintf(stderr, "push: Out of memory\n");
-		return -1;
-	}
 	if (store(p, p->r, addr) == -1) {
 		fprintf(stderr, "push: store failed\n");
 		return -1;
@@ -148,10 +124,6 @@ static int pop(struct proc *p, int addr)
 	addr = word2int(p->sp);
 	if (addr == -1) {
 		fprintf(stderr, "pop: non-numeric stack pointer\n");
-		return -1;
-	}
-	if (addr > 99) {
-		fprintf(stderr, "pop: Invalid stack pointer\n");
 		return -1;
 	}
 	if (addr <= p->stack_base) {
@@ -171,10 +143,6 @@ static int cmp_eql(struct proc *p, int addr)
 {
 	char temp[4];
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "cmp_eql: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "cmp_eql: load failed\n");
 		return -1;	
@@ -190,10 +158,6 @@ static int cmp_less(struct proc *p, int addr)
 {
 	char temp[4];
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "cmp_less: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "cmp_less: load failed\n");
 		return -1;
@@ -209,6 +173,7 @@ static int jmp_if(struct proc *p, int addr)
 {
 	char temp[4];
 
+	/* FIXME: not using limit register */
 	if (addr < 0 || addr > 99)
 		return -1;
 
@@ -223,6 +188,7 @@ static int jmp(struct proc *p, int addr)
 {
 	char temp[4];
 
+	/* FIXME: not using limit register */
 	if (addr < 0 || addr > 99) {
 		fprintf(stderr, "jmp: invalid address\n");
 		return -1;
@@ -239,10 +205,6 @@ static int read(struct proc *p, int addr)
 	char temp[5];
 	int i;
 
-	if (addr < 0 || addr > 89) {
-		fprintf(stderr, "read: invalid addresss\n");
-		return -1;
-	}
 	for (i=0; i<10; i++) {
 		read_word(temp);
 		/* FIXME: this fails to read full words that begin with 'END' */
@@ -267,11 +229,6 @@ static int print(struct proc *p, int addr)
 	char temp[4];
 	int i;
 
-	if (addr < 0 || addr > 89) {
-		fprintf(stderr, "print: invalid address\n");
-		return -1;
-	}
-
 	for (i=0; i<10; i++) {
 		if (load(p, addr++, temp) == -1) {
 			fprintf(stderr, "print: load failed\n");
@@ -287,10 +244,6 @@ static int add(struct proc *p, int addr)
 	int i,j;
 	char temp[4];
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "add: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "add: load failed\n");
 		return -1;
@@ -315,10 +268,6 @@ static int subtract(struct proc *p, int addr)
 	char temp[4];
 	int i,j;
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "subtract: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "subtract: load failed\n");
 		return -1;
@@ -348,10 +297,6 @@ static int multiply(struct proc *p, int addr)
 	char temp[4];
 	int i,j;
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "multiply: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "multiply: load failed\n");
 		return -1;
@@ -378,10 +323,6 @@ static int divide(struct proc *p, int addr)
 	char temp[4];
 	int i,j;
 
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "divide: invalid address\n");
-		return -1;
-	}
 	if (load(p, addr, temp) == -1) {
 		fprintf(stderr, "divide: load failed\n");
 		return -1;
@@ -413,10 +354,6 @@ static int add_stack(struct proc *p, int addr)
 	int i,j;
 
 	addr = word2int(p->sp);
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "add_stack: invalid stack pointer\n");
-		return -1;
-	}
 	if (addr < p->stack_base+1) {
 		fprintf(stderr, "add_stack: stack contains less than 2 elements\n");
 		return -1;
@@ -454,10 +391,6 @@ static int subtract_stack(struct proc *p, int addr)
 	int i,j;
 
 	addr = word2int(p->sp);
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "subtract_stack: invalid stack pointer\n");
-		return -1;
-	}
 	if (load(p, addr--, word1) == -1) {
 		fprintf(stderr, "subtract_stack: load failed\n");
 		return -1;
@@ -495,10 +428,6 @@ static int multiply_stack(struct proc *p, int addr)
 	int i,j;
 
 	addr = word2int(p->sp);
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "multiply_stack: invalid stack pointer\n");
-		return -1;
-	}
 	if (load(p, addr--, word1) == -1) {
 		fprintf(stderr, "multiply_stack: load failed\n");
 		return -1;
@@ -532,10 +461,6 @@ static int divide_stack(struct proc *p, int addr)
 	int i,j;
 
 	addr = word2int(p->sp);
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "divide_stack: invalid stack pointer\n");
-		return -1;
-	}
 	if (load(p, addr--, word1) == -1) {
 		fprintf(stderr, "divide_stack: load failed\n");
 		return -1;
@@ -642,18 +567,6 @@ static int get_msg(struct proc *sender, struct proc *recver)
 
 	load_loc = word2int(sender->r);
 	store_loc = word2int(recver->r);
-	if (load_loc < 0) {
-		fprintf(stderr, "get_msg: invalid load location ");
-		print_word(stderr, sender->r);
-		fprintf(stderr, "\n");
-		return 1;
-	}
-	if (store_loc < 0) {
-		fprintf(stderr, "get_msg: invalid store location ");
-		print_word(stderr, recver->r);
-		fprintf(stderr, "\n");
-		return 1;
-	}
 	for (i=0; i<10; i++) {
 		if (load(sender, load_loc++, temp) != 0) {
 			fprintf(stderr, "get_msg: load failed\n");
@@ -795,10 +708,6 @@ static int sem_up(struct proc *p, int sem)
 
 static int load_shared(struct proc *p, int addr)
 {
-	if (addr < 0) {
-		fprintf(stderr, "load_shared: invalid address (pid %u)\n", p->pid);
-		return 1;
-	}
 	if (load_shm(addr, p->r) != 0) {
 		fprintf(stderr, "load_shared: load failed (pid %u)\n", p->pid);
 		return 1;
@@ -808,10 +717,6 @@ static int load_shared(struct proc *p, int addr)
 
 static int store_shared(struct proc *p, int addr)
 {
-	if (addr < 0) {
-		fprintf(stderr, "store_shared: invalid address (pid %u)\n", p->pid);
-		return 1;
-	}
 	if (store_shm(p->r, addr) != 0) {
 		fprintf(stderr, "store_shared: store failed (pid %u)\n", p->pid);
 		return 1;

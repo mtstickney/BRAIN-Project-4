@@ -28,7 +28,7 @@ void init_mem()
 
 extern int word2int(char *p);
 extern void int2word(int a, char *b);
-static char *get_memp(struct proc *p, unsigned int addr) {
+static char *get_memp(struct proc *p, int addr) {
 	int limit,base;
 
 	limit = word2int(p->lr);
@@ -37,7 +37,7 @@ static char *get_memp(struct proc *p, unsigned int addr) {
 		fprintf(stderr, "get_memp: invalid base or limit register\n");
 		return NULL;
 	}
-	if (addr > limit) {
+	if (addr > limit || addr < 0) {
 		fprintf(stderr, "get_memp: invalid address\n");
 		return NULL;
 	}
@@ -45,7 +45,7 @@ static char *get_memp(struct proc *p, unsigned int addr) {
 }
 
 /* Note: load and store convert endianness of words. */
-int load(struct proc *p, unsigned int addr, char *dest) {
+int load(struct proc *p, int addr, char *dest) {
 	char *src;
 
 	src = get_memp(p, addr);
@@ -57,7 +57,7 @@ int load(struct proc *p, unsigned int addr, char *dest) {
 	return 0;
 }
 
-int store(struct proc *p, const char *src, unsigned int addr)
+int store(struct proc *p, const char *src, int addr)
 {
 	char *dest;
 
@@ -71,15 +71,15 @@ int store(struct proc *p, const char *src, unsigned int addr)
 	return 0;
 }
 
-static char *get_shmp(unsigned int addr) {
-	if (addr > 99) {
+static char *get_shmp(int addr) {
+	if (addr > 99 || addr < 0) {
 		fprintf(stderr, "get_shmp: invalid address %u\n", addr);
 		return NULL;
 	}
 	return &shm[4*addr];
 }
 
-int load_shm(unsigned int addr, char *dest)
+int load_shm(int addr, char *dest)
 {
 	char *src;
 
@@ -92,7 +92,7 @@ int load_shm(unsigned int addr, char *dest)
 	return 0;
 }
 
-int store_shm(char *src, unsigned int addr)
+int store_shm(char *src, int addr)
 {
 	char *dest;
 
