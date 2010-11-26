@@ -1,6 +1,9 @@
 /* Include list:
 	stdio.h
 */
+
+#define PROCS 100
+
 struct proc;
 void init_mem();
 int load(struct proc *p, unsigned int addr, char *dest);

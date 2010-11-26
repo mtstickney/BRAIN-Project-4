@@ -4,8 +4,6 @@
 #include "vm.h"
 #include "hole_list.h"
 
-#define PROCS 100
-
 static char mem[4*100*PROCS];
 static char shm[4*100];
 
