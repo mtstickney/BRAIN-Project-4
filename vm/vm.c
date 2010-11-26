@@ -593,7 +593,7 @@ static int send(struct proc *p, int pid)
 {
 	struct plist *waitp;
 
-	if (pid < 0 || pid > 99) {
+	if (pid < 0 || pid > PROCS-1) {
 		fprintf(stderr, "send: invalid process id\n");
 		return 1;
 	}
@@ -672,7 +672,7 @@ static int recv(struct proc *p, int pid)
 	struct plist *waitp;
 	unsigned int index;
 
-	if (pid > 99) {
+	if (pid > PROCS-1) {
 		fprintf(stderr, "recv: invalid pid (pid %u)\n", p->pid);
 		return 1;
 	}
@@ -991,7 +991,7 @@ static struct op op_table[] = {
 	{ .opcode=HA, .run=halt }
 };
 
-struct proc proc_table[100];
+struct proc proc_table[PROCS];
 static unsigned int next_pid=0;
 
 struct proc *procalloc(unsigned int procsize)
@@ -999,7 +999,7 @@ struct proc *procalloc(unsigned int procsize)
 	struct proc *p;
 	int base_addr;
 
-	if (next_pid > 99) {
+	if (next_pid > PROCS-1) {
 		fprintf(stderr, "procalloc: out of PIDs (!!)\n");
 		return NULL;
 	}
