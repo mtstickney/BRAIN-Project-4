@@ -70,8 +70,6 @@ static int nop(struct proc *p, int addr)
 	return 0;
 }
 
-
-
 /* have this process retry the current operation next */
 int retry_op(struct proc *p)
 {
@@ -87,8 +85,6 @@ int retry_op(struct proc *p)
 	memcpy(p->ic, temp+2, 2);
 	return 0;
 }
-
-
 
 static int set_sem(struct proc *p, int sem)
 {
