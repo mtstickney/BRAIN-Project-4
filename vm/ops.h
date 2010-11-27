@@ -9,3 +9,8 @@ int load_low(struct proc *p, int addr);
 int load_high(struct proc *p, int addr);
 
 int store_register(struct proc *p, int addr);
+
+int set_sp(struct proc *p, int addr);
+int get_sp(struct proc *p, int addr);
+int push(struct proc *p, int addr);
+int pop(struct proc *p, int addr);
