@@ -35,3 +35,5 @@ int sem_down(struct proc *p, int addr);
 
 int load_shared(struct proc *p, int addr);
 int store_shared(struct proc *p, int addr);
+
+int fork_proc(struct proc *p, int addr);

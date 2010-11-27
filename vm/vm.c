@@ -70,44 +70,7 @@ int retry_op(struct proc *p)
 	return 0;
 }
 
-static int fork_proc(struct proc *p, int addr)
-{
-	struct proc *newp;
-	int procsize;
-	char temp[4];
-	int i;
 
-	procsize = word2int(p->lr);
-	if (procsize < 0) {
-		fprintf(stderr, "fork_proc: bad limit register (pid %u)\n", p->pid);
-		return 1;
-	}
-	newp = procalloc(procsize);
-	if (newp == NULL) {
-		memset(p->r, '0', 4);
-	} else {
-		int2word(newp->pid, p->r);
-		int2word(p->pid, newp->r);
-	}
-	memcpy(newp->ic, p->ic, 2);
-	newp->c = p->c;
-	newp->stack_base = p->stack_base;
-
-	/* duplicate memory */
-	for (i=0; i<procsize; i++) {
-		if (load(p, i, temp) != 0) {
-			fprintf(stderr, "fork_proc: load failed (pid %u)\n", p->pid);
-			return 1;
-		}
-		if (store(newp, temp, i) != 0) {
-			fprintf(stderr, "fork_proc: store failed (pid %u)\n", p->pid);
-			return 1;
-		}
-	}
-	sched_reset(newp->pid);
-	sched_resume(newp->pid);
-	return 0;
-}
 
 static int exec_proc(struct proc *p, int addr)
 {
