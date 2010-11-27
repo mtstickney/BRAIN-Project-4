@@ -14,3 +14,6 @@ int set_sp(struct proc *p, int addr);
 int get_sp(struct proc *p, int addr);
 int push(struct proc *p, int addr);
 int pop(struct proc *p, int addr);
+
+int cmp_less(struct proc *p, int addr);
+int cmp_eql(struct proc *p, int addr);
