@@ -70,24 +70,6 @@ int retry_op(struct proc *p)
 	return 0;
 }
 
-static int load_shared(struct proc *p, int addr)
-{
-	if (load_shm(addr, p->r) != 0) {
-		fprintf(stderr, "load_shared: load failed (pid %u)\n", p->pid);
-		return 1;
-	}
-	return 0;
-}
-
-static int store_shared(struct proc *p, int addr)
-{
-	if (store_shm(p->r, addr) != 0) {
-		fprintf(stderr, "store_shared: store failed (pid %u)\n", p->pid);
-		return 1;
-	}
-	return 0;
-}
-
 static int fork_proc(struct proc *p, int addr)
 {
 	struct proc *newp;

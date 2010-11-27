@@ -32,3 +32,6 @@ int send(struct proc *p, int addr);
 int set_sem(struct proc *p, int addr);
 int sem_up(struct proc *p, int addr);
 int sem_down(struct proc *p, int addr);
+
+int load_shared(struct proc *p, int addr);
+int store_shared(struct proc *p, int addr);
