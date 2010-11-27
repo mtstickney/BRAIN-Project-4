@@ -161,7 +161,7 @@ static int halt(struct proc *p, int addr)
 	if (base < 0 || limit < 0) {
 		fprintf(stderr, "halt: bad base or limit register, not freeing memory\n");
 	} else {
-		freemem(base, limit);
+		freemem(base, limit+1);
 	}
 	sched_reset(p->pid);
 	sched_suspend(p->pid);
@@ -228,7 +228,7 @@ struct proc *procalloc(unsigned int procsize)
 	p->stack_base = 0;
 	p->pid = next_pid;
 	int2word(base_addr, p->br);
-	int2word(procsize, p->lr);
+	int2word(procsize-1, p->lr);
 	next_pid++;
 	return p;
 }

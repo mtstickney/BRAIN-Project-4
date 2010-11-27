@@ -15,6 +15,7 @@ int fork_proc(struct proc *p, int addr)
 		fprintf(stderr, "fork_proc: bad limit register (pid %u)\n", p->pid);
 		return 1;
 	}
+	procsize++; /* limit is the maximum valid address, not process size */
 	newp = procalloc(procsize);
 	if (newp == NULL) {
 		/* parent gets error value on failure */

@@ -51,8 +51,7 @@ int load_code(FILE *fh, struct proc *p)
 	addr = 0;
 	while (fscanf(fh, "%7s", buf) == 1) {
 		while (fgetc(fh) != '\n');
-		if (strncmp("BRAIN10", buf, 7) == 0)
-			
+		if (strncmp("BRAIN10", buf, 7) == 0)			
 			return 0;
 		if (strncmp("DATA", buf, 4) == 0)
 			return 1;
