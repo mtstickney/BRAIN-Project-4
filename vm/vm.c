@@ -169,32 +169,33 @@ static int cmp_less(struct proc *p, int addr)
 	return 0;
 }
 
-static int jmp_if(struct proc *p, int addr)
+static int set_ic(struct proc *p, int ic)
 {
 	char temp[4];
-
-	/* FIXME: not using limit register */
-	if (addr < 0 || addr > 99)
+	int lr;
+	
+	lr = word2int(p->lr);
+	if (lr < 0) {
+		fprintf(stderr, "set_ic: invalid limit register\n");
 		return -1;
-
-	int2word(addr, temp);
-	if (p->c == 'T') {
-		memcpy(p->ic, temp+2, 2);
 	}
+	if (ic < 0 || ic > lr) {
+		fprintf(stderr, "set_ic: invalid IC %d\n", ic);
+		return -1;
+	}
+	int2word(ic, temp);
+	memcpy(p->ic, temp+2, 2);
 	return 0;
 }
 
-static int jmp(struct proc *p, int addr)
+static int jmp_if(struct proc *p, int addr)
 {
-	char temp[4];
-
-	/* FIXME: not using limit register */
-	if (addr < 0 || addr > 99) {
-		fprintf(stderr, "jmp: invalid address\n");
-		return -1;
+	if (p->c == 'T') {
+		if (set_ic(p, addr) != 0) {
+			fprintf(stderr, "jmp_if: failed to set IC\n");
+			return -1;
+		}
 	}
-	int2word(addr, temp);
-	memcpy(p->ic, temp+2, 2);
 	return 0;
 }
 
@@ -871,7 +872,7 @@ static struct op op_table[] = {
 	{ .opcode=CE, .run=cmp_eql },
 	{ .opcode=CL, .run=cmp_less },
 	{ .opcode=BT, .run=jmp_if },
-	{ .opcode=BU, .run=jmp },
+	{ .opcode=BU, .run=set_ic },
 	{ .opcode=GD, .run=read },
 	{ .opcode=PD, .run=print },
 	{ .opcode=AD, .run=add },
