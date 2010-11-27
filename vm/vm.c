@@ -32,28 +32,6 @@ void int2word(int a, char *p)
 	}
 }
 
-static int set_ic(struct proc *p, int ic)
-{
-	char temp[4];
-
-	int2word(ic, temp);
-	memcpy(p->ic, temp+2, 2);
-	return 0;
-}
-
-static int jmp_if(struct proc *p, int addr)
-{
-	if (p->c == 'T') {
-		set_ic(p, addr);
-	}
-	return 0;
-}
-
-static int nop(struct proc *p, int addr)
-{
-	return 0;
-}
-
 /* have this process retry the current operation next */
 int retry_op(struct proc *p)
 {
@@ -70,28 +48,6 @@ int retry_op(struct proc *p)
 	return 0;
 }
 
-static int identify(struct proc *p, int addr)
-{
-	int2word(p->pid, p->r);
-	return 0;
-}
-
-static int halt(struct proc *p, int addr)
-{
-	int base, limit;
-
-	base = word2int(p->br);
-	limit=word2int(p->lr);
-	if (base < 0 || limit < 0) {
-		fprintf(stderr, "halt: bad base or limit register, not freeing memory\n");
-	} else {
-		freemem(base, limit+1);
-	}
-	sched_reset(p->pid);
-	sched_suspend(p->pid);
-	return 0;
-}
-
 static struct op op_table[] = {
 	{ .opcode=LR, .run=load_all },
 	{ .opcode=LL, .run=load_low },
@@ -104,7 +60,7 @@ static struct op op_table[] = {
 	{ .opcode=CE, .run=cmp_eql },
 	{ .opcode=CL, .run=cmp_less },
 	{ .opcode=BT, .run=jmp_if },
-	{ .opcode=BU, .run=set_ic },
+	{ .opcode=BU, .run=jmp },
 	{ .opcode=GD, .run=read },
 	{ .opcode=PD, .run=print },
 	{ .opcode=AD, .run=add },

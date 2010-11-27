@@ -38,3 +38,12 @@ int store_shared(struct proc *p, int addr);
 
 int fork_proc(struct proc *p, int addr);
 int exec_proc(struct proc *p, int addr);
+
+int jmp(struct proc *p, int ic);
+int jmp_if(struct proc *p, int ic);
+
+int nop(struct proc *p, int addr);
+
+int identify(struct proc *p, int addr);
+
+int halt(struct proc *p, int addr);
