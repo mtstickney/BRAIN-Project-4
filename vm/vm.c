@@ -10,7 +10,7 @@
 
 struct msg_queues
 {
-	struct plist_head senders;
+	struct plist_head senders; 
 	struct plist_head recvers;
 };
 
@@ -51,17 +51,7 @@ void int2word(int a, char *p)
 static int set_ic(struct proc *p, int ic)
 {
 	char temp[4];
-	int lr;
-	
-	lr = word2int(p->lr);
-	if (lr < 0) {
-		fprintf(stderr, "set_ic: invalid limit register\n");
-		return -1;
-	}
-	if (ic < 0 || ic > lr) {
-		fprintf(stderr, "set_ic: invalid IC %d\n", ic);
-		return -1;
-	}
+
 	int2word(ic, temp);
 	memcpy(p->ic, temp+2, 2);
 	return 0;
@@ -70,10 +60,7 @@ static int set_ic(struct proc *p, int ic)
 static int jmp_if(struct proc *p, int addr)
 {
 	if (p->c == 'T') {
-		if (set_ic(p, addr) != 0) {
-			fprintf(stderr, "jmp_if: failed to set IC\n");
-			return -1;
-		}
+		set_ic(p, addr);
 	}
 	return 0;
 }
@@ -83,54 +70,10 @@ static int nop(struct proc *p, int addr)
 	return 0;
 }
 
-static struct plist *get_recver(struct proc *sender, int target_pid)
-{
-	struct plist *waitp;
 
-	/* check receievers waiting on us */
-	for (waitp = msg_wq[sender->pid].recvers.head; waitp != NULL; waitp = waitp->next) {
-		if (waitp->p->pid == target_pid)
-			return waitp;
-	}
-	/* check receivers waiting on anybody */
-	for (waitp = msg_wq[10].recvers.head; waitp != NULL; waitp = waitp->next) {
-		if (waitp->p->pid == target_pid)
-			return waitp;
-	}
-	return NULL;
-}
 
-static int send(struct proc *p, int pid)
-{
-	struct plist *waitp;
-
-	if (pid < 0 || pid > PROCS-1) {
-		fprintf(stderr, "send: invalid process id\n");
-		return 1;
-	}
-
-	/* Block on the receiver */
-	sched_suspend(p->pid);
-	if (insert_proc(&(msg_wq[pid].senders), p) != 0) {
-		fprintf(stderr, "send: failed to add self to wait queue\n");
-		return 1;
-	}
-
-	/* wake up the receiever if there is one */
-	waitp = get_recver(p, pid);
-	if (waitp == NULL)
-		return 0;
-	/* remove receiver from either wait queue (ours or the any queue) */
-	if (remove_proc(&(msg_wq[p->pid].recvers), waitp->p) != 0 &&
-	    remove_proc(&(msg_wq[10].recvers), waitp->p) != 0) {
-		fprintf(stderr, "send: receiver appears to not be in either wait queue...\n");
-		return 1;
-	}
-	sched_resume(pid);
-	return 0;
-}
-
-static int rewind_ic(struct proc *p)
+/* have this process retry the current operation next */
+int retry_op(struct proc *p)
 {
 	int ic;
 	char temp[4];
@@ -145,76 +88,7 @@ static int rewind_ic(struct proc *p)
 	return 0;
 }
 
-static int get_msg(struct proc *sender, struct proc *recver)
-{
-	int store_loc, load_loc;
-	int i;
-	char temp[4];
 
-	load_loc = word2int(sender->r);
-	store_loc = word2int(recver->r);
-	for (i=0; i<10; i++) {
-		if (load(sender, load_loc++, temp) != 0) {
-			fprintf(stderr, "get_msg: load failed\n");
-			return 1;
-		}
-		if (store(recver, temp, store_loc++) != 0) {
-			fprintf(stderr, "get_msg: store failed\n");
-			return 1;
-		}
-	}
-	return 0;
-}
-
-static int recv(struct proc *p, int pid)
-{
-	struct plist *waitp;
-	unsigned int index;
-
-	if (pid > PROCS-1) {
-		fprintf(stderr, "recv: invalid pid (pid %u)\n", p->pid);
-		return 1;
-	}
-
-	/* get the waiting process, if any */
-	waitp = msg_wq[p->pid].senders.head;
-	if (pid >= 0) {
-		for (; waitp!=NULL; waitp=waitp->next) {
-			if (waitp->p->pid == pid)
-				break;
-		}
-	}
-
-	if (waitp == NULL) {
-		if (rewind_ic(p) != 0) {
-			fprintf(stderr, "recv: invalid IC\n");
-			return 1;
-		}
-		/* put ourselves on the wait queue and suspend */
-		index = pid;
-		if (pid < 0)
-			index = 10;
-		sched_suspend(p->pid);
-		if (insert_proc(&(msg_wq[index].recvers), p) != 0) {
-			fprintf(stderr, "recv: Failed to add self to wait queue\n");
-			return -1;
-		}
-		return 0;
-	}
-
-	if (get_msg(waitp->p, p) != 0) {
-		fprintf(stderr, "recv: get_msg failed (pid %u)\n", p->pid);
-		return 1;
-	}
-	/* we're done with the sender, so wake them up */
-	pid = waitp->p->pid;
-	if (remove_proc(&(msg_wq[p->pid].senders), waitp->p) != 0) {
-		fprintf(stderr, "recv: failed to remove sender from wait queue\n");
-		return 1;
-	}
-	sched_resume(pid);
-	return 0;
-}
 
 static int set_sem(struct proc *p, int sem)
 {
@@ -251,7 +125,7 @@ static int sem_down(struct proc *p, int sem)
 	case 0:
 		return 0;
 	case 1:
-		if (rewind_ic(p) != 0) {
+		if (retry_op(p) != 0) {
 			fprintf(stderr, "sem_down: error resetting IC (pid %u)\n", p->pid);
 			return 1;
 		}

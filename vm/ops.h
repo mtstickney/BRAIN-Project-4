@@ -25,3 +25,6 @@ int add_stack(struct proc *p, int addr);
 int subtract_stack(struct proc *p, int addr);
 int multiply_stack(struct proc *p, int addr);
 int divide_stack(struct proc *p, int addr);
+
+int recv(struct proc *p, int addr);
+int send(struct proc *p, int addr);
