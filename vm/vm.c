@@ -6,6 +6,7 @@
 #include "sched.h"
 #include "wait_queue.h"
 #include "loader.h"
+#include "ops.h"
 
 struct msg_queues
 {
@@ -240,113 +241,6 @@ static int print(struct proc *p, int addr)
 	return 0;
 }
 
-static int add(struct proc *p, int addr)
-{
-	int i,j;
-	char temp[4];
-
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "add: load failed\n");
-		return -1;
-	}
-	i = word2int(temp);
-	j = word2int(p->r);
-	if (i == -1) {
-		fprintf(stderr, "add: non-numeric word in memory\n");
-		return -1;
-	}
-	if (j == -1) {
-		fprintf(stderr, "add: non-numeric word in register\n");
-		return -1;
-	}
-	i += j;
-	int2word(i, p->r);
-	return 0;
-}
-
-static int subtract(struct proc *p, int addr)
-{
-	char temp[4];
-	int i,j;
-
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "subtract: load failed\n");
-		return -1;
-	}
-	
-	i = word2int(p->r);
-	j = word2int(temp);
-	if (i == -1) {
-		fprintf(stderr, "subtract: non-numeric word in register\n");
-		return -1;
-	}
-	if (j == -1) {
-		fprintf(stderr, "subtract: non-numeric word in memory\n");
-		return -1;
-	}
-	if (i < j) {
-		fprintf(stderr, "subtract: negative result\n");
-		return -1;
-	}
-	i -= j;
-	int2word(i, p->r);
-	return 0;
-}
-
-static int multiply(struct proc *p, int addr)
-{
-	char temp[4];
-	int i,j;
-
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "multiply: load failed\n");
-		return -1;
-	}
-
-	i = word2int(p->r);
-	j = word2int(temp);
-	if (i == -1) {
-		fprintf(stderr, "multiply: non-numeric word in register\n");
-		return -1;
-	}
-	if (j == -1) {
-		fprintf(stderr, "multiply: non-numeric word in memory\n");
-		return -1;
-	}
-
-	i *= j;
-	int2word(i, p->r);
-	return 0;
-}
-
-static int divide(struct proc *p, int addr)
-{
-	char temp[4];
-	int i,j;
-
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "divide: load failed\n");
-		return -1;
-	}
-
-	i = word2int(p->r);
-	j = word2int(temp);
-	if (i == -1) {
-		fprintf(stderr, "divide: non-numeric word in register\n");
-		return -1;
-	}
-	if (j == -1) {
-		fprintf(stderr, "divide: non-numeric word in memory\n");
-		return -1;
-	}
-	if (j == 0) {
-		fprintf(stderr, "divide: division by zero\n");
-		return -1;
-	}
-	i /= j;
-	int2word(i, p->r);
-	return 0;
-}
 
 static int add_stack(struct proc *p, int addr)
 {
