@@ -8,22 +8,6 @@
 #include "loader.h"
 #include "ops.h"
 
-struct msg_queues
-{
-	struct plist_head senders; 
-	struct plist_head recvers;
-};
-
-/* wait queues for message passing */
-/* Note: last position is used to store procs receiving from any */
-static struct msg_queues msg_wq[11];
-static struct plist_head sem_wq[100];
-
-void vm_init()
-{
-	memset(msg_wq, 0, 10*sizeof(struct msg_queues));
-	memset(sem_wq, 0, 100*sizeof(struct plist_head));
-}
 
 int word2int(char *p)
 {
