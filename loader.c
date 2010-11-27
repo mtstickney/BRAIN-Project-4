@@ -117,8 +117,7 @@ int main()
 		return 1;
 	}
 	msg_init();
-	vm_init();
-	sem_setup();
+	sem_op_init();
 	init_mem();
 	if (load_file(stdin) != 0) {
 		fprintf(stderr, "loader: failed to load BRAIN programs from stdin\n");

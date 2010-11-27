@@ -63,7 +63,6 @@ int tick(unsigned int pid);
 int word2int(char *);
 void int2word(int a, char *b);
 void msg_init();
-void vm_init();
+void sem_op_init();
 int retry_op(struct proc *p);
 struct proc *procalloc(unsigned int size);
-	

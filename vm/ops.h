@@ -28,3 +28,7 @@ int divide_stack(struct proc *p, int addr);
 
 int recv(struct proc *p, int addr);
 int send(struct proc *p, int addr);
+
+int set_sem(struct proc *p, int addr);
+int sem_up(struct proc *p, int addr);
+int sem_down(struct proc *p, int addr);

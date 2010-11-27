@@ -3,7 +3,7 @@
 
 static unsigned int sem_table[100];
 
-void sem_setup()
+void sem_init()
 {
 	int i;
 
@@ -12,7 +12,7 @@ void sem_setup()
 	}
 }
 
-int init_sem(unsigned int sem, unsigned int val)
+int sem_set(unsigned int sem, unsigned int val)
 {
 	if (sem > 99)
 		return 1;
