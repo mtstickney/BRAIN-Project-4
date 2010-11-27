@@ -12,6 +12,7 @@ int load_shm(int addr, char *dest);
 int store_shm(char *src, int addr);
 int memalloc(unsigned int size);
 void freemem(unsigned int addr, unsigned int size);
+int dup_mem(struct proc *p, struct proc *q);
 void print_mem();
 void print_word(FILE* fh, char *word);
 void set_mem(char a);

@@ -105,6 +105,27 @@ int store_shm(char *src, int addr)
 	return 0;
 }
 
+/* make process q's address space equivalent to process p's */
+int dup_mem(struct proc *p, struct proc *q)
+{
+	int i,j;
+	int c;
+	char *src, *dest;
+
+	i = word2int(p->lr);
+	j = word2int(q->lr);
+	for (c=0; c<=i && c<=j; c++) {
+		src = get_memp(p, c);
+		dest = get_memp(q, c);
+		if (src == NULL || dest == NULL) {
+			fprintf(stderr, "dup_mem: get_memp failed\n");
+			return -1;
+		}
+		memcpy(dest, src, 4);
+	}
+	return 0;
+}
+
 void print_word(FILE* fh, char *word)
 {
 	fprintf(fh, "%c%c%c%c", word[0], word[1], word[2], word[3]);
