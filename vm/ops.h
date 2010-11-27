@@ -7,3 +7,5 @@ int divide(struct proc *p, int addr);
 int load_all(struct proc *p, int addr);
 int load_low(struct proc *p, int addr);
 int load_high(struct proc *p, int addr);
+
+int store_register(struct proc *p, int addr);

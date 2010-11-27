@@ -48,16 +48,6 @@ void int2word(int a, char *p)
 	}
 }
 
-
-static int store_register(struct proc *p, int addr)
-{
-	if (store(p, p->r, addr) == -1) {
-		fprintf(stderr, "store_register: store failed\n");
-		return -1;
-	}
-	return 0;
-}
-
 static int set_sp(struct proc *p, int addr)
 {
 	addr = word2int(p->r);
