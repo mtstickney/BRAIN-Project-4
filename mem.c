@@ -11,8 +11,12 @@ void set_mem(char a) {
 	memset(mem, a, 4*100*PROCS);
 }
 
-int memalloc(unsigned int size)
+int memalloc(int size)
 {
+	if (size < 0) {
+		fprintf(stderr, "memalloc: invalid size\n");
+		return -1;
+	}
 	return get_first_hole(size);
 }
 
@@ -125,6 +129,27 @@ int dup_mem(struct proc *p, struct proc *q)
 	}
 	return 0;
 }
+
+int resize_proc(struct proc *p, int newsize)
+{
+	int addr;
+	int base, limit;
+
+	addr = memalloc(newsize);
+	if (addr < 0)
+		return -1;
+	base = word2int(p->br);
+	limit = word2int(p->lr);
+	if (base < 0 || limit < 0) {
+		fprintf(stderr, "realloc_proc: warning: invalid base or limit register, not freeing memory");
+	} else {
+		freemem(base, limit+1);
+	}
+	int2word(addr, p->br);
+	int2word(newsize-1, p->lr);
+	return 0;
+}
+	
 
 void print_word(FILE* fh, char *word)
 {
