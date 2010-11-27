@@ -31,7 +31,6 @@ int exec_proc(struct proc *p, int addr)
 	int procsize;
 	char temp[7];
 	FILE *fh;
-	int pid;
 
 	fh = get_exec_fh(p);
 	if (fh == NULL) {
