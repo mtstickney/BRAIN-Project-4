@@ -17,3 +17,6 @@ int pop(struct proc *p, int addr);
 
 int cmp_less(struct proc *p, int addr);
 int cmp_eql(struct proc *p, int addr);
+
+int print(struct proc *p, int addr);
+int read(struct proc *p, int addr);
