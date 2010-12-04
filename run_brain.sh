@@ -1,9 +1,9 @@
 #!/bin/bash
-if :
-then
 ./brain $1 $2 < $3 >/dev/null 2>&1 >/dev/null 2>brain.log &
 PID=$!
 sleep 2
+if :
+then
 kill -s SIGTERM $PID
 wait
 fi 2>/dev/null
@@ -14,5 +14,5 @@ sleep 1
 cat ctxt.last
 cat page.last
 cat ops.last
-rm ctxt.last page.last ops.last brain.log
+rm ctxt.last page.last ops.last
 
