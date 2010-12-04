@@ -48,7 +48,7 @@ int get_global_address(struct proc *p, int addr)
 		return -1;
 	}
 	if (addr > limit) {
-		fprintf(stderr, "get_global_address: address past process limit\n");
+		fprintf(stderr, "get_global_address: address %d past process limit\n", addr);
 		return -1;
 	}
 	return base+addr;
@@ -171,19 +171,16 @@ void print_mem(struct proc *proc)
 {
 	int i,j;
 	char *p;
-	char *memp;
-	int addr;
 
-	addr = get_global_address(proc, 0);
-	memp = &mem[addr*4];
-	for (i=0; i<100; i++) {
+	for (i=0; i<100; i+=10) {
 		printf("%03d ", i);
-		for (j=0; j<9; j++, i++) {
-			p = &memp[i*4];
+		fprintf(stderr, "print_mem: printing data at global address %d\n", get_global_address(proc, i));
+		for (j=0; j<10; j++) {
+			p = get_wordref(proc, i+j);
 			printf("%c%c%c%c ", p[0], p[1], p[2], p[3]);
+			release_wordref(proc, i+j);
 		}
-		p=&memp[i*4];
-		printf("%c%c%c%c\n", p[0], p[1], p[2], p[3]);
+		printf("\b\n");
 	}
 }
 
