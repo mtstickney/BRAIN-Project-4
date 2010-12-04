@@ -213,7 +213,7 @@ static int toss_page()
 		return -1;
 	}
 	if (page < 0) {
-		fprintf(stderr, "toss_page: all valid pages in use. Increase page count or size.\n");
+		fprintf(stderr, "toss_page: all valid pages in use. Increase page size or physical memory.\n");
 		return -1;
 	}
 	store_page(page);
