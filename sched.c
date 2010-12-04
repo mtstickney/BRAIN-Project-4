@@ -30,7 +30,7 @@ static struct cfs_rq rq = {.t=NULL, .min_vruntime=0, .current=0, .nr_running=0};
 
 /* accounting vars for program analysis */
 static unsigned int ctx_switches;
-static unsigned int ops;
+unsigned int ops;
 
 static rb_red_blk_node *leftmost(rb_red_blk_tree *t)
 {
@@ -85,17 +85,6 @@ static void ctxt_switch()
 
 	ctx_switches++;
 	fprintf(stderr, "ACCT: %u ctxt switches, %u ops\n", ctx_switches, ops);
-}
-
-static void print_task_table()
-{
-	int i;
-
-	for (i=0; i<(sizeof(task_table)/sizeof(task_table[0])); i++) {
-		if (task_table[i].pid == rq.current)
-			fprintf(stderr, "*");
-		fprintf(stderr, "PID %u VRUNTIME %u NODE %d\n", task_table[i].pid, task_table[i].vruntime, task_table[i].n);
-	}
 }
 
 int sched_suspend(unsigned int pid)
