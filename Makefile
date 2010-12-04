@@ -5,8 +5,10 @@ CFLAGS=-Wall -I . -I vm/ -I rb_tree/
 BUILDDIR=$(shell pwd)
 
 all: $(TARG) Makefile
-clean:
+clean: ${MODULES:%=%-clean}
 	- $(RM) *.o brain
+%-clean:
+	cd $*; $(MAKE) clean $(MFLAGS)
 %.o: %.c
 	$(CC) -c $^ $(CFLAGS)
 %.a: force_look
@@ -15,4 +17,4 @@ brain: $(OFILES) ${MODULES:%=%.a}
 	$(CC) -o $@ $^ $(LDFLAGS)
 force_look:
 	true
-.PHONY: all clean %.a
+.PHONY: all clean %-clean %.a
