@@ -99,6 +99,7 @@ int recv(struct proc *p, int pid)
 int send(struct proc *p, int pid)
 {
 	struct plist *recvp;
+	struct plist_head *wq;
 
 	if (pid < 0 || pid > PROCS-1) {
 		fprintf(stderr, "send: invalid process id\n");
@@ -109,19 +110,23 @@ int send(struct proc *p, int pid)
 	sched_suspend(p->pid);
 	if (insert_proc(&send_wq[pid], p) != 0) {
 		fprintf(stderr, "send: failed to add self to wait queue\n");
-		return 1;
+		return -1;
 	}
 
 	/* wake up the receiever if there is one */
-	recv_wq[p->pid].tail->next = recv_wq[PROCS].head; /* temporarily combine wait queues */
-	recvp = recv_wq[p->pid].head;
-	for (; recvp != NULL; recvp=recvp->next) {
+	wq = &recv_wq[p->pid];
+	recvp = wq->head;
+	while (recvp != NULL || wq != &recv_wq[PROCS]) {
+		if (recvp == NULL) {
+			wq = &recv_wq[PROCS];
+			recvp = wq->head;
+			continue;
+		}
 		if (recvp->p->pid == pid)
 			break;
+		recvp=recvp->next;
 	}
-	recv_wq[p->pid].tail->next = NULL; /* split queues again */
-
-	if (recv_wq == NULL)
+	if (recvp == NULL)
 		return 0;
 
 	/* remove receiver from either wait queue (ours or the any queue) */
