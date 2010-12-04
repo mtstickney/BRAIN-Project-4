@@ -167,18 +167,22 @@ void print_word(FILE* fh, char *word)
 	fprintf(fh, "%c%c%c%c", word[0], word[1], word[2], word[3]);
 }
 
-void print_mem()
+void print_mem(struct proc *proc)
 {
 	int i,j;
 	char *p;
+	char *memp;
+	int addr;
 
-	for (i=0; i<1000; i++) {
+	addr = get_global_address(proc, 0);
+	memp = &mem[addr*4];
+	for (i=0; i<100; i++) {
 		printf("%03d ", i);
 		for (j=0; j<9; j++, i++) {
-			p = &mem[i*4];
+			p = &memp[i*4];
 			printf("%c%c%c%c ", p[0], p[1], p[2], p[3]);
 		}
-		p=&mem[i*4];
+		p=&memp[i*4];
 		printf("%c%c%c%c\n", p[0], p[1], p[2], p[3]);
 	}
 }

@@ -16,7 +16,7 @@ int memalloc(int size);
 void freemem(unsigned int addr, unsigned int size);
 int dup_mem(struct proc *p, struct proc *q);
 int resize_proc(struct proc *p, int newsize);
-void print_mem();
+void print_mem(struct proc *p);
 void print_word(FILE* fh, char *word);
 void set_mem(char a);
 int get_global_address(struct proc *p, int addr);
