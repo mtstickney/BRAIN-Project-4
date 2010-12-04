@@ -53,8 +53,8 @@ static int init_page_table()
 	}
 	for (i=0; i<sys_pager.pg_count; i++) {
 		pg_table[i].valid = 0;
-		/* pg_table[i].page = i; FIXME*/
 		pg_table[i].frame_addr = 0;
+		pg_table[i].refcount = 0;
 	}
 	return 0;
 }
@@ -97,6 +97,10 @@ int pagemem_init(unsigned int pg_count, unsigned int pg_size, double history_wei
 		fprintf(stderr, "pagemem_init: page size is larger than available memory\n");
 		return -1;
 	}
+	if (MEMSIZE % pg_size != 0) {
+		fprintf(stderr, "pagemem_init: page size must evenly divide memory size\n");
+		return -1;
+	}
 	sys_pager.pg_count = pg_count;
 	sys_pager.pg_size = pg_size;
 	/* setup the virtual address space */
@@ -136,7 +140,8 @@ static int get_removal_page()
 	
 	min_index = -1;
 	for (i=0; i<sys_pager.pg_count; i++) {
-		if (pg_table[i].refcount > 0)
+		/* can't toss invalid or in-use pages */
+		if (!pg_table[i].valid || pg_table[i].refcount > 0)
 			continue;
 		if (min_index == -1 || freq_table.pg_period[i].period < min_period) {
 			min_index = i;
@@ -200,6 +205,10 @@ static int toss_page()
 	int frame;
 	
 	page = get_removal_page();
+	if (!pg_table[page].valid) {
+		fprintf(stderr, "toss_page: tossing invalid page\n");
+		return -1;
+	}
 	if (page < 0) {
 		fprintf(stderr, "toss_page: all valid pages in use. Increase page count or size.\n");
 		return -1;
@@ -220,7 +229,7 @@ static int page_in(unsigned int page)
 
 	frame_count = MEMSIZE/sys_pager.pg_size;
 	for (i=0; i<frame_count; i++) {
-		if (free_frames[i] != 0)
+		if (free_frames[i] == 1)
 			break;
 	}
 	if (i == frame_count) {
@@ -245,7 +254,7 @@ int touch_page(unsigned int vaddr)
 	int page, offset;
 	int frame_count;
 	int i;
-	
+
 	page = vaddr / sys_pager.pg_size;
 	offset = vaddr % sys_pager.pg_size;
 	if (page > sys_pager.pg_count-1) {
