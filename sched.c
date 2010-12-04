@@ -84,7 +84,7 @@ static void ctxt_switch()
 	RBDelete(rq.t, n);
 
 	ctx_switches++;
-	fprintf(stderr, "ACCT: %u ctxt switches, %u ops\n", ctx_switches, ops);
+	fprintf(stderr, "ACCT: %u ctxt switches\n", ctx_switches);
 }
 
 int sched_suspend(unsigned int pid)
@@ -171,7 +171,7 @@ int sched_run()
 			task_table[rq.current].vruntime++;
 			if (tick(rq.current) != 0)
 				return -1;
-			ops++;
+			fprintf(stderr, "ACCT: %u ops\n", ops++);
 		}
 		if (rq.nr_running < 2)
 			continue;
