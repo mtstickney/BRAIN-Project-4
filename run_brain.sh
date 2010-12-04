@@ -1,5 +1,5 @@
 #!/bin/bash
-./brain $1 $2 < $3 >/dev/null 2>&1 >/dev/null 2>brain.log &
+./brain $1 < $2 >/dev/null 2>&1 >/dev/null 2>brain.log &
 PID=$!
 sleep 2
 if :

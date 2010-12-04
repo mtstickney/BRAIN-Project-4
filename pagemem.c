@@ -93,23 +93,23 @@ static int init_free_frames()
 }
 
 /* sizes are in words, not bytes */
-int pagemem_init(unsigned int pg_count, unsigned int pg_size, double history_weight)
+int pagemem_init(unsigned int pg_size, double history_weight)
 {
 	if (pg_size > MEMSIZE) {
 		fprintf(stderr, "pagemem_init: page size is larger than available memory\n");
 		return -1;
 	}
 	if (MEMSIZE % pg_size != 0) {
-		fprintf(stderr, "pagemem_init: page size must evenly divide memory size\n");
+		fprintf(stderr, "pagemem_init: page size must evenly divide physical memory\n");
 		return -1;
 	}
 	page_faults = 0;
-	sys_pager.pg_count = pg_count;
 	sys_pager.pg_size = pg_size;
+	sys_pager.pg_count = VADDR_SIZE/pg_size;
 	/* setup the virtual address space */
-	freemem(0, pg_size*pg_count);
-	page_mem = malloc(pg_count*pg_size*4);
-	memset(page_mem, '0', pg_count*pg_size*4);
+	freemem(0, VADDR_SIZE);
+	page_mem = malloc(VADDR_SIZE*4);
+	memset(page_mem, '0', VADDR_SIZE*4);
 	if (page_mem == NULL) {
 		fprintf(stderr, "pagemem_init: failed to allocate secondary storage\n");
 		goto ERR_RET;

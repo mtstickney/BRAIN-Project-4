@@ -129,20 +129,19 @@ int get_uint(char *s)
 
 int main(int argc, char **argv)
 {
-	int pg_count, pg_size;
+	int pg_size;
 
-	if (argc != 3) {
-		printf("Usage: brain page_count page_size\n");
+	if (argc != 2) {
+		printf("Usage: brain page_size\n");
 		return 1;
 	}
-	pg_count = get_uint(argv[1]);
-	pg_size = get_uint(argv[2]);
-	if (pg_count <= 0 || pg_size <= 0) {
-		fprintf(stderr, "Invalid page count or page size\n");
+	pg_size = get_uint(argv[1]);
+	if (pg_size <= 0) {
+		fprintf(stderr, "Invalid page size\n");
 		return 1;
 	}
 	/* default to 50% history weight */
-	if (pagemem_init(pg_count, pg_size, 0.5) != 0) {
+	if (pagemem_init(pg_size, 0.5) != 0) {
 		fprintf(stderr, "Error initializing paged memory\n");
 		return 1;
 	}

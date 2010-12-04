@@ -5,6 +5,8 @@
 #define PROCS 100
 #define MEMSIZE 100
 #define SHMSIZE 100
+/* size of the virtual address space */
+#define VADDR_SIZE PROCS*100
 
 struct proc;
 void init_mem();
