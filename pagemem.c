@@ -138,20 +138,20 @@ ERR_RET:
 /* means faster response, higher improves consistency). */
 static int get_removal_page()
 {
-	int i, min_index;
-	unsigned int min_period;
+	int i, max_index;
+	unsigned int max_period;
 	
-	min_index = -1;
+	max_index = -1;
 	for (i=0; i<sys_pager.pg_count; i++) {
 		/* can't toss invalid or in-use pages */
 		if (!pg_table[i].valid || pg_table[i].refcount > 0)
 			continue;
-		if (min_index == -1 || freq_table.pg_period[i].period < min_period) {
-			min_index = i;
-			min_period = freq_table.pg_period[i].period;
+		if (max_index == -1 || freq_table.pg_period[i].period > max_period) {
+			max_index = i;
+			max_period = freq_table.pg_period[i].period;
 		}
 	}
-	return min_index;
+	return max_index;
 }
 
 void print_pagemem()
