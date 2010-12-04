@@ -3,10 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <errno.h>
+#include <limits.h>
 #include "mem.h"
 #include "vm.h"
 #include "sched.h"
 #include "sem.h"
+#include "pagemem.h"
 
 /* note: buf should be able to hold word_size+1 bytes, since we use scanf to read */
 void read_word(char *buf)
@@ -55,7 +58,7 @@ int load_code(FILE *fh, struct proc *p)
 			return 0;
 		if (strncmp("DATA", buf, 4) == 0)
 			return 1;
-		if (store(p, buf, addr++) != 0) {
+		if (page_store(p, buf, addr++) != 0) {
 			fprintf(stderr, "load_code: store failed\n");
 			return -1;
 		}
@@ -107,8 +110,43 @@ int load_file(FILE *fh)
 	}
 }
 
-int main()
+int get_uint(char *s)
 {
+	char *endp;
+	long sl;
+	
+	sl = strtol(s, &endp, 10);
+	if (errno != 0 && (sl == LONG_MIN || sl == LONG_MAX)) {
+		perror("strtol");
+		return -1;
+	}
+	if (endp == s)
+		return -1;
+	if (sl > INT_MAX || sl < INT_MIN)
+		return -1;
+	return sl;
+}
+
+int main(int argc, char **argv)
+{
+	int pg_count, pg_size;
+
+	if (argc != 3) {
+		printf("Usage: brain page_count page_size\n");
+		return 1;
+	}
+	pg_count = get_uint(argv[1]);
+	pg_size = get_uint(argv[2]);
+	if (pg_count <= 0 || pg_size <= 0) {
+		fprintf(stderr, "Invalid page count or page size\n");
+		return 1;
+	}
+	/* default to 50% history weight */
+	if (pagemem_init(pg_count, pg_size, 0.5) != 0) {
+		fprintf(stderr, "Error initializing paged memory\n");
+		return 1;
+	}
+	
 	set_mem('0');
 
 	if (sched_init() != 0) {
@@ -122,8 +160,6 @@ int main()
 		fprintf(stderr, "loader: failed to load BRAIN programs from stdin\n");
 		return 1;
 	}
-
-	print_mem();
 	sched_run();
 	/* print_mem(); */
 
