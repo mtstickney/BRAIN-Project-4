@@ -99,7 +99,10 @@ int pagemem_init(unsigned int pg_count, unsigned int pg_size, double history_wei
 	}
 	sys_pager.pg_count = pg_count;
 	sys_pager.pg_size = pg_size;
+	/* setup the virtual address space */
+	freemem(0, pg_size*pg_count);
 	page_mem = malloc(pg_count*pg_size*4);
+	memset(page_mem, '0', pg_count*pg_size*4);
 	if (page_mem == NULL) {
 		fprintf(stderr, "pagemem_init: failed to allocate secondary storage\n");
 		goto ERR_RET;
@@ -232,6 +235,7 @@ static int page_in(unsigned int page)
 	}
 	memcpy(framep, &page_mem[page*sys_pager.pg_size*4], sys_pager.pg_size*4);
 	pg_table[page].valid = 1;
+	free_frames[i] = 0;
 	return 0;
 }
 

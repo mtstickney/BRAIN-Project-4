@@ -29,11 +29,6 @@ void freemem(unsigned int addr, unsigned int size)
 	add_hole(addr, size);
 }
 
-void init_mem()
-{
-	add_hole(0, MEMSIZE);
-}
-
 extern int word2int(char *p);
 extern void int2word(int a, char *b);
 

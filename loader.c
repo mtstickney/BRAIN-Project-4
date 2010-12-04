@@ -155,13 +155,11 @@ int main(int argc, char **argv)
 	}
 	msg_init();
 	sem_op_init();
-	init_mem();
 	if (load_file(stdin) != 0) {
 		fprintf(stderr, "loader: failed to load BRAIN programs from stdin\n");
 		return 1;
 	}
 	sched_run();
-	/* print_mem(); */
 
 	return 0;
 }
