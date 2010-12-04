@@ -6,33 +6,42 @@
 
 int load_all(struct proc *p, int addr)
 {
-	if (load(p, addr, p->r) == -1) {
-		fprintf(stderr, "load_all: load failed\n");
+	char *word;
+
+	word = get_wordref(p, addr);
+	if (word == NULL) {
+		fprintf(stderr, "load_all: failed to get memory ref\n");
 		return -1;
 	}
+	memcpy(p->r, word, 4);
+	release_wordref(p, addr);
 	return 0;
 }
 
 int load_low(struct proc *p, int addr)
 {
-	char temp[4];
+	char *temp;
 
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "load_low: load failed\n");
+	temp = get_wordref(p, addr);
+	if (temp == NULL) {
+		fprintf(stderr, "load_all: failed to get memory ref\n");
 		return -1;
 	}
 	memcpy(p->r+2, temp+2, 2);
+	release_wordref(p, addr);
 	return 0;
 }
 
 int load_high(struct proc *p, int addr)
 {
-	char temp[4];
+char *temp;
 
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "load_high: load failed\n");
+	temp = get_wordref(p, addr);
+	if (temp == NULL) {
+		fprintf(stderr, "load_all: failed to get memory ref\n");
 		return -1;
 	}
 	memcpy(p->r, temp, 2);
+	release_wordref(p, addr);
 	return 0;
 }

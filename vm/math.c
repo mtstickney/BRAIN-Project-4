@@ -12,6 +12,9 @@ int do_binop(char *a, char *b, char op)
 	j = word2int(b);
 	if (i == -1 || j == -1) {
 		fprintf(stderr, "do_binop: non-numeric operand\n");
+		fprintf(stderr, "word 1: "); print_word(stderr, a);
+		fprintf(stderr, " word 2: "); print_word(stderr, b);
+		fprintf(stderr, "\n");
 		return -1;
 	}
 	switch(op) {
@@ -41,11 +44,12 @@ int do_binop(char *a, char *b, char op)
 
 static int do_register_op(struct proc *p, int addr, char op, char *opname)
 {
-	char temp[4];
+	char *temp;
 	int res;
 	
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "%s: load failed\n", opname);
+	temp = get_wordref(p, addr);
+	if (temp == NULL) {
+		fprintf(stderr, "%s: failed to get memory ref\n", opname);
 		return -1;
 	}
 	res = do_binop(p->r, temp, op);
@@ -53,6 +57,7 @@ static int do_register_op(struct proc *p, int addr, char op, char *opname)
 		fprintf(stderr, "%s: do_binop failed\n", opname);
 		return -1;
 	}
+	release_wordref(p, addr);
 	int2word(res, p->r);
 	return 0;
 }

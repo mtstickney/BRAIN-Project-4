@@ -9,6 +9,7 @@ static FILE *get_exec_fh(struct proc *p)
 {
 	int ic;
 	char temp[4];
+	char *word;
 	char fname[9] = "XX.brain";
 
 	memset(temp, '0', 4);
@@ -16,16 +17,16 @@ static FILE *get_exec_fh(struct proc *p)
 	ic = word2int(temp);
 	if (ic < 0)
 		return NULL;
+	/* tick() already incremented for us... */
 	ic--;
-	if (load(p, ic, temp) == -1)
+	word = get_wordref(p, ic);
+	if (word == NULL)
 		return NULL;
-	memcpy(fname, temp+2, 2);
-	fprintf(stderr, "get_exec_fh: opening '%s'\n", fname);
+	memcpy(fname, word+2, 2);
+	release_wordref(p, ic);
 	return fopen(fname, "r");
 }
-	
 
-/* FIXME: when we use procalloc, we change this proc's PID, which breaks a fork-exec pair */
 int exec_proc(struct proc *p, int addr)
 {
 	int procsize;

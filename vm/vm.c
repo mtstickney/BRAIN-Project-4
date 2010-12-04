@@ -115,10 +115,11 @@ struct proc *procalloc(unsigned int procsize)
 
 int tick(unsigned int pid)
 {
-	char word[4];
+	char *word;
 	char temp[4];
 	enum OP op;
 	int addr, ic, i;
+	int res;
 	struct proc *p;
 
 	if (pid >= next_pid) {
@@ -137,8 +138,9 @@ int tick(unsigned int pid)
 		fprintf(stderr, " (pid %u)\n", p->pid);
 		return -1;
 	}
-	if (load(p, ic, word) == -1) {
-		fprintf(stderr, "tick: load failed\n");
+	word = get_wordref(p, ic);
+	if (word == NULL) {
+		fprintf(stderr, "tick: failed to get memory ref\n");
 		return -1;
 	}
 
@@ -154,8 +156,12 @@ int tick(unsigned int pid)
 	addr = word2int(temp);
 
 	for (i=0; i<LEN(op_table); i++) {
-		if (op_table[i].opcode == op)
-			return op_table[i].run(p, addr);
+		if (op_table[i].opcode == op) {
+			res = op_table[i].run(p, addr);
+			/* note: ic has been incremented by now */
+			release_wordref(p, ic-1);
+			return res;
+		}
 	}
 	fprintf(stderr, "tick: Illegal instruction word %c%c%c%c (pid %u)\n", word[0], word[1], word[2], word[3], pid);
 /*	fprintf(stderr, "tick: Illegal operation %c%c (pid %u, IC %c%c)\n", word[0], word[1], pid, p->ic[0], p->ic[1]); */

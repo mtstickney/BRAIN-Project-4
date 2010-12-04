@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include "mem.h"
 #include "vm.h"
 #include "wait_queue.h"
@@ -14,19 +15,25 @@ static int xfer_msg(struct proc *sender, struct proc *recver)
 {
 	int store_loc, load_loc;
 	int i;
-	char temp[4];
+	char *send_word;
+	char *recv_word;
 
 	load_loc = word2int(sender->r);
 	store_loc = word2int(recver->r);
 	for (i=0; i<10; i++) {
-		if (load(sender, load_loc++, temp) != 0) {
-			fprintf(stderr, "get_msg: load failed\n");
+		send_word = get_wordref(sender, load_loc+i);
+		if (send_word == NULL) {
+			fprintf(stderr, "get_msg: failed to get memory ref\n");
 			return 1;
 		}
-		if (store(recver, temp, store_loc++) != 0) {
-			fprintf(stderr, "get_msg: store failed\n");
+		recv_word = get_wordref(recver, store_loc+i);
+		if (recv_word == NULL) {
+			fprintf(stderr, "get_msg: failed to get memory ref\n");
 			return 1;
 		}
+		memcpy(recv_word, send_word, 4);
+		release_wordref(sender, load_loc+i);
+		release_wordref(recver, store_loc+i);
 	}
 	return 0;
 }

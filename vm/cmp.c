@@ -6,30 +6,34 @@
 
 int cmp_eql(struct proc *p, int addr)
 {
-	char temp[4];
+	char *temp;
 
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "cmp_eql: load failed\n");
+	temp = get_wordref(p, addr); 
+	if (temp == NULL) {
+		fprintf(stderr, "cmp_eql: failed to get memory ref\n");
 		return -1;	
 	}
 	if (memcmp(p->r, temp, 4) == 0)
 		p->c = 'T';
 	else
 		p->c = 'F';
+	release_wordref(p, addr);
 	return 0;
 }
 
 int cmp_less(struct proc *p, int addr)
 {
-	char temp[4];
+	char *temp;
 
-	if (load(p, addr, temp) == -1) {
-		fprintf(stderr, "cmp_less: load failed\n");
+	temp = get_wordref(p, addr);
+	if (temp == NULL) {
+		fprintf(stderr, "cmp_less: failed to get memory ref\n");
 		return -1;
 	}
 	if (memcmp(p->r, temp, 4) < 0)
 		p->c = 'T';
 	else
 		p->c = 'F';
+	release_wordref(p, addr);
 	return 0;
 }

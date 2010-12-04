@@ -3,12 +3,16 @@
 #include "mem.h"
 #include "vm.h"
 #include "hole_list.h"
+#include "pagemem.h"
 
-static char mem[4*100*PROCS];
-static char shm[4*100];
+#define MEMBYTES 4*MEMSIZE
+#define SHMBYTES 4*SHMSIZE
+
+char mem[MEMBYTES];
+static char shm[SHMBYTES];
 
 void set_mem(char a) {
-	memset(mem, a, 4*100*PROCS);
+	memset(mem, a, MEMBYTES);
 }
 
 int memalloc(int size)
@@ -27,52 +31,62 @@ void freemem(unsigned int addr, unsigned int size)
 
 void init_mem()
 {
-	add_hole(0, 100*PROCS);
+	add_hole(0, MEMSIZE);
 }
 
 extern int word2int(char *p);
 extern void int2word(int a, char *b);
-static char *get_memp(struct proc *p, int addr) {
-	int limit,base;
 
-	limit = word2int(p->lr);
+int get_global_address(struct proc *p, int addr)
+{
+	int base, limit;
+	
+	if (addr < 0)
+	{
+		fprintf(stderr, "get_global_address: invalid address\n");
+		return -1;
+	}
 	base = word2int(p->br);
-	if (limit < 0 || base < 0) {
-		fprintf(stderr, "get_memp: invalid base or limit register\n");
-		return NULL;
+	limit = word2int(p->lr);
+	if (base < 0 || limit < 0) {
+		fprintf(stderr, "get_global_address: invalid base or limit register\n");
+		return -1;
 	}
-	if (addr > limit || addr < 0) {
-		fprintf(stderr, "get_memp: invalid address\n");
-		return NULL;
+	if (addr > limit) {
+		fprintf(stderr, "get_global_address: address past process limit\n");
+		return -1;
 	}
-	return &mem[4*(base+addr)];
+	return base+addr;
 }
 
 /* Note: load and store convert endianness of words. */
-int load(struct proc *p, int addr, char *dest) {
-	char *src;
+char *get_wordref(struct proc *p, int addr) {
+	int global_addr;
+	int phys_addr;
 
-	src = get_memp(p, addr);
-	if (src == NULL) {
-		fprintf(stderr, "load: invalid address %d\n", addr);
-		return -1;
+	global_addr = get_global_address(p, addr);
+	if (global_addr < 0) {
+		fprintf(stderr, "get_wordref: invalid global address\n");
+		return NULL;
 	}
-	memcpy(dest, src, 4);
-	return 0;
+	phys_addr = touch_page(global_addr);
+	if (phys_addr < 0) {
+		fprintf(stderr, "get_wordref: error bringing page in\n");
+		return NULL;
+	}
+	return &mem[4*phys_addr];
 }
 
-int store(struct proc *p, const char *src, int addr)
+void release_wordref(struct proc *p, int addr)
 {
-	char *dest;
-
-	dest = get_memp(p, addr);
-	if (dest == NULL) {
-		fprintf(stderr, "store: invalid address %d\n", addr);
-		return -1;
+	int global_addr;
+	
+	global_addr = get_global_address(p, addr);
+	if (global_addr < 0) {
+		fprintf(stderr, "release_ref: invalid global address\n");
+		return;
 	}
-
-	memcpy(dest, src, 4);
-	return 0;
+	page_release_ref(global_addr);
 }
 
 static char *get_shmp(int addr) {
@@ -119,13 +133,15 @@ int dup_mem(struct proc *p, struct proc *q)
 	i = word2int(p->lr);
 	j = word2int(q->lr);
 	for (c=0; c<=i && c<=j; c++) {
-		src = get_memp(p, c);
-		dest = get_memp(q, c);
+		src = get_wordref(p, c);
+		dest = get_wordref(q, c);
 		if (src == NULL || dest == NULL) {
-			fprintf(stderr, "dup_mem: get_memp failed\n");
+			fprintf(stderr, "dup_mem: get_wordref failed\n");
 			return -1;
 		}
 		memcpy(dest, src, 4);
+		release_wordref(p, c);
+		release_wordref(q, c);
 	}
 	return 0;
 }
@@ -171,3 +187,5 @@ void print_mem()
 		printf("%c%c%c%c\n", p[0], p[1], p[2], p[3]);
 	}
 }
+
+

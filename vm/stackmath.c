@@ -6,8 +6,8 @@
 
 static int stack_op(struct proc *p, int addr, char op, char *opname)
 {
-	char word1[4];
-	char word2[4];
+	char *word1;
+	char *word2;
 	int res;
 	
 	addr = word2int(p->sp);
@@ -16,22 +16,29 @@ static int stack_op(struct proc *p, int addr, char op, char *opname)
 		return -1;
 	}
 	
-	if (load(p, addr--, word1) == -1 || load(p, addr, word2) == -1) {
-		fprintf(stderr, "%s: load failed\n", opname);
+	word1 = get_wordref(p, addr);
+	word2 = get_wordref(p, addr-1);
+	if (word1 == NULL || word2 == NULL) {
+		fprintf(stderr, "%s: failed to get memory ref\n", opname);
 		return -1;
 	}
 	/* order is next_on_stack op top_of_stack */
 	res = do_binop(word2, word1, op);
+	release_wordref(p, addr);
+	release_wordref(p, addr-1);
 	if (res < 0) {
 		fprintf(stderr, "%s: do_binop failed\n", opname);
 		return -1;
 	}
-	int2word(res, word1);
+	addr--;
 	int2word(addr, p->sp);
-	if (store(p, word1, addr) == -1) {
-		fprintf(stderr, "%s: store failed\n", opname);
+	word1 = get_wordref(p, addr);
+	if (word1 == NULL) {
+		fprintf(stderr, "%s: failed to get memory ref\n", opname);
 		return -1;
 	}
+	int2word(res, word1);
+	release_wordref(p, addr);
 	return 0;
 }
 
