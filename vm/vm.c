@@ -106,10 +106,9 @@ struct proc *procalloc(unsigned int procsize)
 	memset(p, '0', sizeof(struct proc));
 	p->c = 'F';
 	p->stack_base = 0;
-	p->pid = next_pid;
+	p->pid = next_pid++;
 	int2word(base_addr, p->br);
 	int2word(procsize-1, p->lr);
-	next_pid++;
 	return p;
 }
 
@@ -128,6 +127,11 @@ int tick(unsigned int pid)
 	}
 	p = &proc_table[pid];
 
+	if (p->pid != pid) {
+		fprintf(stderr, "tick: pid table entry does not match pid\n");
+		return -1;
+	}
+
 	/* load the word at p->ic */
 	memset(temp, '0', 4);
 	memcpy(temp+2, p->ic, 2);
@@ -145,8 +149,7 @@ int tick(unsigned int pid)
 	}
 
 	/* increment p->ic */
-	ic++;
-	int2word(ic, temp);
+	int2word(ic+1, temp);
 	memcpy(p->ic, temp+2, 2);
 
 	/* execute the instruction */
@@ -159,10 +162,11 @@ int tick(unsigned int pid)
 		if (op_table[i].opcode == op) {
 			res = op_table[i].run(p, addr);
 			/* note: ic has been incremented by now */
-			release_wordref(p, ic-1);
+			release_wordref(p, ic);
 			return res;
 		}
 	}
+	print_mem(p);
 	fprintf(stderr, "tick: Illegal instruction word %c%c%c%c (pid %u)\n", word[0], word[1], word[2], word[3], pid);
 /*	fprintf(stderr, "tick: Illegal operation %c%c (pid %u, IC %c%c)\n", word[0], word[1], pid, p->ic[0], p->ic[1]); */
 	return -1;
