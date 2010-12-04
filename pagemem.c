@@ -26,6 +26,8 @@ static unsigned int *free_frames=NULL;
 
 static struct pager sys_pager;
 
+static unsigned int page_faults;
+
 struct freq_ent
 {
 	/* last_access is in operations (ops global from sched.h) */
@@ -101,6 +103,7 @@ int pagemem_init(unsigned int pg_count, unsigned int pg_size, double history_wei
 		fprintf(stderr, "pagemem_init: page size must evenly divide memory size\n");
 		return -1;
 	}
+	page_faults = 0;
 	sys_pager.pg_count = pg_count;
 	sys_pager.pg_size = pg_size;
 	/* setup the virtual address space */
@@ -262,7 +265,7 @@ int touch_page(unsigned int vaddr)
 		return -1;
 	}
 	if (!pg_table[page].valid) {
-		fprintf(stderr, "PAGE FAULT\n");
+		fprintf(stderr, "ACCT: %d page faults\n", page_faults++);
 		frame_count = MEMSIZE/sys_pager.pg_size;
 		for (i=0; i<frame_count; i++) {
 			if (free_frames[i] == 1)
